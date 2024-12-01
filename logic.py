@@ -6,7 +6,7 @@ class Pokemon:
 
     def __init__(self, pokemon_trainer):
         self.pokemon_trainer = pokemon_trainer
-        self.pokemon_number = randint(900, 1000)
+        self.pokemon_number = randint(1, 1000)
         self.abilities = self.get_abilities()
         self.img = self.get_img()
         self.name = self.get_name()
@@ -32,7 +32,7 @@ class Pokemon:
             data = response.json()
             return data['sprites']['front_shiny']
         except requests.exceptions.RequestException as e:
-            return "Huh"
+            return "th.jpg"
 
     def get_name(self):
         url = f'https://pokeapi.co/api/v2/pokemon/{self.pokemon_number}'
