@@ -4,6 +4,15 @@ from logic import Pokemon, Wizard, Fighter
 from random import randint, choice
 
 bot = telebot.TeleBot(token) 
+@bot.message_handler(commands=['info'])
+def info(message):
+    bot.send_message(message, """
+ /go - create a pokemon
+ /fight - fight with an other pokemon
+ /train - train your pokemon
+ /feed - feed your pokemon
+ /show - show your pokemon statistics                   
+""")
 @bot.message_handler(commands=['go'])
 def go(message):
     if message.from_user.username not in Pokemon.pokemons.keys():
