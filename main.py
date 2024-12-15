@@ -2,17 +2,18 @@ import telebot
 from config import token
 from logic import Pokemon, Wizard, Fighter
 from random import randint, choice
+from datetime import datetime, timedelta
 
 bot = telebot.TeleBot(token) 
 @bot.message_handler(commands=['info'])
 def info(message):
-    bot.send_message(message, """
- /go - create a pokemon
- /fight - fight with an other pokemon
- /train - train your pokemon
- /feed - feed your pokemon
- /show - show your pokemon statistics                   
-""")
+    bot.send_message(message.chat.id, 
+" /go - create a pokemon \n"
+ "/fight - fight with an other pokemon\n"
+ "/train - train the pokemon\n"
+ "/feed - feed the pokemon\n"
+ "/show - show the pokemon statistic\n"                   
+)
 @bot.message_handler(commands=['go'])
 def go(message):
     if message.from_user.username not in Pokemon.pokemons.keys():
@@ -126,25 +127,31 @@ def train(message):
 
 @bot.message_handler(commands=["feed"])
 def feed(message):
-    if message.from_user.username in Pokemon.pokemons:
+    if message.from_user.username in Pokemon.pokemons.keys():
         pokemon = Pokemon.pokemons[message.from_user.username]
         
+        feed_result, time_left = pokemon.feed()
 
-        restored_health = randint(20, 50)
-        pokemon.health += restored_health
-
-        bot.send_message(
-            message.chat.id,
-            f"Ваш покемон {pokemon.name} поел! 🍎\n"
-            f"⬆️ Здоровье восстановилось на {restored_health}!\n"
-            f"Текущее здоровье: {pokemon.health}"
-        )
+        if feed_result is not None:  
+            bot.send_message(
+                message.chat.id,
+                f"Ваш покемон {pokemon.name} накормлен! 🍎\n"
+                f"⬆️ Здоровье увеличилось на {feed_result}.\n"
+                f"Текущее здоровье: {pokemon.health}."
+            )
+        else: 
+            time_left_minutes = int(time_left.total_seconds() // 60)
+            time_left_seconds = int(time_left.total_seconds() % 60)
+            bot.send_message(
+                message.chat.id,
+                f"Ваш покемон {pokemon.name} сыт. 🕒\n"
+                f"Следующее кормление возможно через {time_left_minutes} минут и {time_left_seconds} секунд."
+            )
     else:
         bot.send_message(
             message.chat.id,
             "У вас пока нет покемона. Введите /go, чтобы создать его!"
         )
-
 @bot.message_handler(commands=["show"])
 def show_pokemon(message):
     if message.from_user.username in Pokemon.pokemons:
@@ -159,6 +166,7 @@ def show_pokemon(message):
             f"Редкость: {pokemon.rarity}\n"
             f"Здоровье: {pokemon.health}\n"
             f"Атака: {pokemon.power}"
+            
         )
         
         

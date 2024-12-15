@@ -1,6 +1,6 @@
 from random import randint, choice
 import requests
-
+from datetime import datetime, timedelta
 
 class Pokemon:
     pokemons = {}
@@ -14,8 +14,7 @@ class Pokemon:
         self.rarity = self.get_rarity()
         self.health = self.get_health()
         self.power = self.get_power()
-        self.is_weak = False  
-
+        self.last_fed = datetime.now() - timedelta(minutes=16)
         Pokemon.pokemons[pokemon_trainer] = self
 
     def attack(self, enemy):
@@ -60,7 +59,6 @@ class Pokemon:
             return f"Pokemon#{self.pokemon_number}"
 
     def get_rarity(self):
-        # Устанавливаем редкость в зависимости от случайного номера
         if self.pokemon_number <= 300:
             return "Редкий"
         elif self.pokemon_number <= 720:
@@ -71,7 +69,6 @@ class Pokemon:
             return "Легендарный"
 
     def get_health(self):
-        # Здоровье покемона зависит от его редкости
         if self.rarity == "Легендарный":
             return randint(150, 250)
         elif self.rarity == "Эпический":
@@ -80,7 +77,6 @@ class Pokemon:
             return randint(80, 150)
 
     def get_power(self):
-        # Сила покемона зависит от его редкости
         if self.rarity == "Легендарный":
             return randint(100, 150)
         elif self.rarity == "Эпический":
@@ -96,30 +92,50 @@ class Pokemon:
 
     def show_img(self):
         return self.img
+    def can_feed(self):
+        time_since_last_fed = datetime.now() - self.last_fed
+        return time_since_last_fed >= timedelta(minutes=15)
+    
+    def feed(self):
+     now = datetime.now()
+     feed_interval = timedelta(minutes=15) 
+     next_feed_time = self.last_fed + feed_interval
 
-    def check_if_weak(self):
-        if self.health <= 50:
-            self.is_weak = True
-            return True
-        return False
-
+     if now >= next_feed_time:
+        self.last_fed = now
+        health_increase = randint(20, 40)  
+        self.health += health_increase
+        return health_increase, None 
+     else:
+        remaining_time = next_feed_time - now
+        return None, remaining_time 
 
 class Fighter(Pokemon):
-    def get_health(self):
-        return randint(100, 200)   
+    def feed(self):
+        now = datetime.now()
+        feed_interval = timedelta(minutes=15) 
+        next_feed_time = self.last_fed + feed_interval
 
-    def get_power(self):
-        return randint(100, 200)
-
+        if now >= next_feed_time:
+            self.last_fed = now
+            health_increase = randint(40, 70)
+            self.health += health_increase
+            return health_increase, None
+        else:
+            remaining_time = next_feed_time - now
+            return None, remaining_time
 
 class Wizard(Pokemon):
-    def get_health(self):
-        return randint(80, 150) 
+    def feed(self):
+        now = datetime.now()
+        feed_interval = timedelta(minutes=15)
+        next_feed_time = self.last_fed + feed_interval
 
-    def get_power(self):
-        return randint(200, 300)
-
-
-class Defender(Pokemon):
-    def get_health(self):
-        return randint(300, 500)  
+        if now >= next_feed_time:
+            self.last_fed = now
+            health_increase = randint(20, 40)
+            self.health += health_increase
+            return health_increase, None
+        else:
+            remaining_time = next_feed_time - now
+            return None, remaining_time
